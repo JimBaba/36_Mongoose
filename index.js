@@ -1,9 +1,9 @@
 const mongoose = require('mongoose')
 
-main().catch(err => console.log(err));
+main().catch(err => console.log("err"));
 
 async function main() {
-        await mongoose.connect('mongodb://127.0.0.1:27017/movieApp').then(() => {
+        await mongoose.connect('mongodb://127.0.0.1:27017/personApp').then(() => {
             console.log("DB connection open")
         }).catch(error => {
             console.log("Error!!!!: " + error);
@@ -11,32 +11,25 @@ async function main() {
   // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
 }
 
-const movieSchema = new mongoose.Schema({
-    title: String,
-    year: Number,
-    score: Number,
-    rating: String
+const personSchema = new mongoose.Schema({
+    first: {type: String},
+    last: {type: String}
 })
 
-// Erstellung des Models. Titel sollte Einzahl sein und mit einem Großbuchstaben beginnen
-const Movie = mongoose.model('Movie', movieSchema);
+personSchema.virtual('fullName').get(function() {
+    return `${this.first} ${this.last}`
+})
 
-// Movie.insertMany([
-//     {title: "The Thing", year: 1982, score: 8.2, rating: "R"},
-//     {title: "Alien", year: 1979, score: 8.5, rating: "R"},
-//     {title: "Mad Max", year: 1979, score: 6.8, rating: "R"},
-//     {title: "Total Recall", year: 1990, score: 7.5, rating: "R"},
-//     {title: "Toy Story", year: 1995, score: 8.3, rating: "PG"}
-// ]).then(data => {
-//     console.log("It worked!")
-//     console.log(data)
-// })
+// führe eine funktion aus, bevor etwas gemacht wird, in diesem fall save
+personSchema.pre('save', async function() {
+    console.log("About to Save....")
+})
 
-// async function movieFinder(title){
-//     const movie = await Movie.find({title: title}).exec()
-//     console.log("Gefunden: " + movie)
-// }
+// führe eine funktion aus, nachdem etwas gemacht wurde, in diesem fall save
+personSchema.post('save', async function() {
+    console.log("Save Successfull")
+})
 
-// movieFinder("Mad Max")
+const Person = new mongoose.model('Person', personSchema)
 
-Movie.find({score: {gte: 8}}).then(data => {console.log(data)})
+const alex = new Person({first: "Alex", last: "OHA"})
